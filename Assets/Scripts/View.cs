@@ -8,11 +8,11 @@ public class View : MonoBehaviour
 
     private void Start()
     {
-        _counter.UpdateCounter += OnUpdateCounter;
+        _counter.ValueChanged += OnUpdateCounter;
     }
 
     private void OnUpdateCounter(int number)
     {
-        _textMesh.text = _counter.CurrentNumber.ToString();
+        _textMesh.text = number.ToString();
     }
 }

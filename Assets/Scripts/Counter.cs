@@ -3,51 +3,69 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Counter : MonoBehaviour
 {
     [SerializeField] private float _timeStep = 0.5f;
+    [SerializeField] private InputReader _inputReader;
 
-    private bool _isPaused;
+    private int _currentNumber;
+    private bool _isStart;
     private Coroutine _coroutine;
+    private WaitForSeconds _waitTime;
 
-    public event Action<int> UpdateCounter;
-
-    public int CurrentNumber { get; private set; }
+    public event Action<int> ValueChanged;
 
     private void Start()
     {
-        _isPaused = true;
-        CurrentNumber = 0;
+        _currentNumber = 0;
+        _isStart = false;
+        _waitTime = new WaitForSeconds(_timeStep);
+
+        _inputReader.MouseButtonPressed += ToggleCounter;
     }
 
-    private void Update()
+    public void ToggleCounter()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (_isStart)
         {
-            Debug.Log("Пользователь прожал ЛКМ.");
-
-            if (_isPaused == false)
-            {
-                StopCoroutine(_coroutine);
-                _isPaused = true;
-            }
-            else
-            {
-                _coroutine = StartCoroutine(CounterUp());
-                _isPaused = false;
-            }
+            _isStart = false;
+            StopCounter();
+        }
+        else
+        {
+            _isStart = true;
+            StartCounter();
         }
     }
 
-    IEnumerator CounterUp()
+    private void StartCounter()
     {
-        while(true)
+        if (_coroutine == null)
         {
-            CurrentNumber++;
-            UpdateCounter?.Invoke(CurrentNumber);
+            _coroutine = StartCoroutine(CounterUp());
+        }
+    }
 
-            yield return new WaitForSeconds(_timeStep);
+    private void StopCounter()
+    {
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+            _coroutine = null;
+        }
+    }
+
+    private IEnumerator CounterUp()
+    {
+        while (true)
+        {
+            _currentNumber++;
+            ValueChanged?.Invoke(_currentNumber);
+
+            yield return _waitTime;
         }
     }
 }
+
