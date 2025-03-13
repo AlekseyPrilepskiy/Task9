@@ -11,6 +11,16 @@ public class View : MonoBehaviour
         _counter.ValueChanged += OnUpdateCounter;
     }
 
+    private void OnEnable()
+    {
+        _counter.ValueChanged += OnUpdateCounter;
+    }
+
+    private void OnDisable()
+    {
+        _counter.ValueChanged -= OnUpdateCounter;
+    }
+
     private void OnUpdateCounter(int number)
     {
         _textMesh.text = number.ToString();

@@ -1,9 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Counter : MonoBehaviour
 {
@@ -22,33 +19,41 @@ public class Counter : MonoBehaviour
         _currentNumber = 0;
         _isStart = false;
         _waitTime = new WaitForSeconds(_timeStep);
-
-        _inputReader.MouseButtonPressed += ToggleCounter;
     }
 
-    public void ToggleCounter()
+    private void OnEnable()
+    {
+        _inputReader.MouseButtonPressed += TogglePause;
+    }
+
+    private void OnDisable()
+    {
+        _inputReader.MouseButtonPressed -= TogglePause;
+    }
+
+    public void TogglePause()
     {
         if (_isStart)
         {
             _isStart = false;
-            StopCounter();
+            Stop();
         }
         else
         {
             _isStart = true;
-            StartCounter();
+            Run();
         }
     }
 
-    private void StartCounter()
+    private void Run()
     {
         if (_coroutine == null)
         {
-            _coroutine = StartCoroutine(CounterUp());
+            _coroutine = StartCoroutine(Counting());
         }
     }
 
-    private void StopCounter()
+    private void Stop()
     {
         if (_coroutine != null)
         {
@@ -57,7 +62,7 @@ public class Counter : MonoBehaviour
         }
     }
 
-    private IEnumerator CounterUp()
+    private IEnumerator Counting()
     {
         while (true)
         {
